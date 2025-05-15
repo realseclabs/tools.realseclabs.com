@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RealSec Labs - Building Security through Trust</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#FF6B00', // Orange from logo
+                        'secondary': '#1A1A1A', // Dark background
+                        'light-gray': '#808080',
+                    },
+                    fontFamily: {
+                        'sans': ['Roboto', 'sans-serif'],
+                        'heading': ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #f0f0f0;
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #FF6B00, #FF9D4D);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .glow {
+            box-shadow: 0 0 15px rgba(255, 107, 0, 0.5);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 107, 0, 0.2);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #FF6B00;
+            transition: width 0.3s;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .proxy-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .proxy-container::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+        .proxy-container::-webkit-scrollbar-thumb {
+            background: #3d3d3d;
+            border-radius: 4px;
+        }
+        .proxy-container::-webkit-scrollbar-thumb:hover {
+            background: #FF6B00;
+        }
+        .code-editor {
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #FF6B00; /* Primary color */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .tool-card {
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* Ensure cards have consistent height */
+            justify-content: space-between;
+        }
+        .tool-card:hover {
+            background-color: #2a2a2a;
+        }
+        .modal {
+            animation: fadeIn 0.3s;
+        }
+        .modal-content {
+            animation: slideIn 0.3s;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        select {
+            background-image: none; /* Remove default dropdown arrow */
+            cursor: pointer; /* Change cursor to pointer for better UX */
+        }
+
+        select:focus {
+            outline: none; /* Remove default focus outline */
+        }
+
+        section {
+            scroll-margin-top: 80px; /* Adjust this value to match your header height */
+        }
+
+        #open-source-projects {
+            margin-top: 5rem; /* Adjust this value as needed */
+            scroll-margin-top: 120px; /* Matches the offset in JavaScript */
+        }
+        .filter-orange {
+            filter: brightness(0) saturate(100%) invert(38%) sepia(100%) saturate(1000%) hue-rotate(0deg) brightness(100%) contrast(100%);
+        }
+        .iframe-container {
+            height: 100%;
+            overflow: hidden; /* Hide scrollbar by default */
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .iframe-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .iframe-container:hover {
+            overflow: auto; /* Show scrollbar on hover */
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;     /* Firefox */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;             /* Chrome, Safari, Opera */
+        }
+    </style>
+</head>
+
+<body class="min-h-screen font-sans">
+    <!-- Navbar -->
+    <header class="fixed w-full bg-secondary/90 backdrop-blur-sm z-50">
+        <nav class="container mx-auto px-4 py-4 flex flex-wrap items-center justify-between">
+            <div class="flex items-center">
+                <!-- Add Logo -->
+                <img src="./assets/images/RealSecLabs-Logo-nobg.png" alt="RealSec Labs Logo" class="h-10 mr-3" onclick="location.href='#home';">
+                <a href="#" class="flex items-center">
+                    <div class="font-heading font-bold text-xl md:text-2xl">
+                    </div>
+                </a>
+            </div>
+            
+            <button id="menu-toggle" class="md:hidden text-white focus:outline-none">
+                <i class="bi bi-list text-2xl"></i>
+            </button>
+            
+            <div id="mobile-menu" class="hidden md:flex w-full md:w-auto md:items-center">
+                <ul class="flex flex-col md:flex-row md:space-x-8 mt-4 md:mt-0 font-medium">
+                    <li><a href="https://blog.realseclabs.com/" class="nav-link block py-2 text-white hover:text-primary">Blog</a></li>
+                    <li><a href="https://collab.realseclabs.com/" class="nav-link block py-2 text-white hover:text-primary">Collaborate</a></li>
+
+                    <li><a href="#home" class="nav-link block py-2 text-white hover:text-primary">Home</a></li>
+                   
+                    <li><a href="https://realseclabs.com/#linkedin" class="nav-link block py-2 text-white hover:text-primary">Linkedin</a></li>
+                    <li>
+                        <a href="https://realseclabs.com/" class="nav-link block py-2 text-primary hover:text-primary font-bold">
+                            RealSec Labs
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="pt-28 md:pt-32 pb-10 md:pb-16 px-4">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-4 leading-tight">
+                        <span class="gradient-text">Mastering Security,</span> 
+                        <br>Empowering Trust.
+                    </h1>
+                    
+                    <!-- Name and Qualification -->
+                    <div class="mt-6 text-left">
+                        <p class="text-lg md:text-xl text-gray-300 italic mt-2">
+                        Built By
+                        </p>
+                        <h2 class="text-2xl md:text-3xl font-bold text-primary animate-pulse">
+                            Glan Loyan Dsouza
+                        </h2>
+                        
+                    </div>
+
+                    <p class="text-xl mb-8 text-gray-300 mt-6">
+Redefining Cyber Defense, One Solution at a Time.                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="#live-tools" class="bg-primary hover:bg-orange-500 text-white py-3 px-8 rounded-md font-medium transition-all glow text-center">
+                            Explore Tools
+                        </a>
+                       
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <div class="relative">
+                        <div class="w-64 h-64 md:w-80 md:h-80 bg-primary/20 rounded-full absolute -top-5 -right-5 animate-pulse"></div>
+                        <div class="w-64 h-64 md:w-80 md:h-80 bg-primary/20 rounded-full absolute -bottom-5 -left-5 animate-pulse" style="animation-delay: 1s"></div>
+                        <div class="relative bg-secondary p-2 rounded-xl border border-gray-700">
+                            <img src="https://images.unsplash.com/photo-1545987796-200677ee1011?q=80&w=3540&auto=format&fit=crop" 
+                                 alt="Cybersecurity Visualization" 
+                                 class="w-full h-auto rounded-lg max-w-lg" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Tools Section -->
+    <section id="live-tools" class="pt-32 pb-16 px-4 bg-[#191919] min-h-screen">
+        <div class="container mx-auto">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-heading font-bold mb-4 gradient-text"> My Cybersecurity Creations - Built for Real Protection</h1>
+                <p class="text-lg text-gray-300 max-w-2xl mx-auto">
+Explore a suite of security tools I've developed, tested, and optimized for real-world challenges.
+
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Tool Card 1 -->
+                <div class="bg-secondary p-6 rounded-xl border border-gray-700 tool-card flex flex-col items-center text-center card-hover">
+                    <div class="w-40 h-40 mb-4 rounded-full overflow-hidden border-4 border-primary shadow-lg flex items-center justify-center bg-[#232323]">
+                        <img src="./assets/images/phinix.jpg" alt="Phinix Logo" class="object-cover w-full h-full">
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Phinix</h3>
+                    <p class="text-gray-300 mb-4">A Python-powered tool to simulate phishing attacks and detect malicious emails.</p>
+                    <a href="https://phinix.realseclabs.com" target="_blank" class="bg-primary hover:bg-orange-600 text-white py-2 px-6 rounded-md font-medium transition-all">
+                        Launch Tool
+                    </a>
+                </div>
+                <!-- Add more tool cards as needed -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-[#101010] text-gray-300 py-12 px-4">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Company Info -->
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="text-primary text-3xl mr-2"></div>
+                        <div class="font-heading font-bold text-xl">
+                            <img src="./assets/images/RealSecLabs-Logo-nobg.png" alt="RealSec Labs Logo" class="h-10 mr-3" onclick="location.href='#home';">
+
+                        </div>
+                    </div>
+                    <p class="text-gray-400 mb-6">
+                        Building Security through Trust.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-primary">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-primary">
+                            <i class="bi bi-twitter-x"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-primary">
+                            <i class="bi bi-github"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-primary">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="font-bold text-lg mb-6">Quick Links</h4>
+                    <ul>
+                        <li><a href="https://blog.realseclabs.com/" class="hover:text-primary">Blog</a></li>
+                        <li><a href="https://collab.realseclabs.com/" class="hover:text-primary">Collaborate</a></li>
+                        <li><a href="https://realseclabs.com/" class="hover:text-primary">RealSec Labs</a></li>
+
+                    </ul>
+                    <!-- Spinner Loader -->
+                   
+                </div>
+                
+                <!-- Services -->
+                <div>
+                    
+                    <!-- Spinner Loader -->
+                    
+                </div>
+                
+                <!-- Newsletter -->
+                <div>
+                    <h4 class="font-bold text-lg mb-6"></h4>
+                    <!-- Spinner Loader -->
+                    <div class="flex justify-center mt-4">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 text-sm text-gray-400">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p>&copy; 2025 RealSec Labs. All rights reserved.</p>
+                    <div class="flex space-x-6 mt-4 md:mt-0">
+                        <a href="#" class="hover:text-primary">Privacy Policy</a>
+                        <a href="#" class="hover:text-primary">Terms of Service</a>
+                        <a href="#" class="hover:text-primary">Cookies Policy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+   </body>
+   </html>
